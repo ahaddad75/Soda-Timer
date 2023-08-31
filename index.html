@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Soda Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #timer, #status, #clock {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Soda Timer</h1>
+        <div id="clock"></div>
+        
+        <button id="start">Start Timer</button>
+        <button id="stop">Stop Timer</button>
+        <button id="reset">Réinitialiser tout</button>
+        
+        <div id="timer"></div>
+        <div id="status"></div>
+        
+        <div id="history" class="history-section">
+            <h2>Historique</h2>
+            <ul id="historyList"></ul>
+            <button id="clearHistory">Effacer l'historique</button>
+        </div>
+        
+        <div id="statistics" class="statistics-section">
+            <h2>Statistiques</h2>
+            <p>Nombre total de jours: <span id="totalDays"></span></p>
+            <p>Jours réussis: <span id="successfulDays"></span></p>
+            <p>Pourcentage de réussite: <span id="successRate"></span>%</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
