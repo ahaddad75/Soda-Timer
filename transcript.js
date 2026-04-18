@@ -29,35 +29,54 @@
     }
 
     const PROXIES = [
-        { name: 'corsproxy.io',    build: u => 'https://corsproxy.io/?' + encodeURIComponent(u) },
-        { name: 'allorigins.win',  build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
-        { name: 'codetabs.com',    build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
-        { name: 'cors.lol',        build: u => 'https://api.cors.lol/?url=' + encodeURIComponent(u) },
-        { name: 'thingproxy',      build: u => 'https://thingproxy.freeboard.io/fetch/' + u },
+        { name: 'corsproxy.io',    build: u => 'https://corsproxy.io/?' + encodeURIComponent(u), post: true },
+        { name: 'allorigins.win',  build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u), post: false },
+        { name: 'codetabs.com',    build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), post: true },
+        { name: 'cors.lol',        build: u => 'https://api.cors.lol/?url=' + encodeURIComponent(u), post: true },
+        { name: 'thingproxy',      build: u => 'https://thingproxy.freeboard.io/fetch/' + u, post: true },
     ];
 
-    async function tryProxy(proxy, targetUrl) {
-        const res = await fetch(proxy.build(targetUrl));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
+    function orderedProxies(filter) {
+        const preferred = proxySelect.value;
+        const all = filter ? PROXIES.filter(filter) : PROXIES;
+        if (preferred === 'auto') return all;
+        const head = all.find(p => p.name === preferred);
+        return head ? [head, ...all.filter(p => p.name !== preferred)] : all;
     }
 
     async function proxiedFetch(targetUrl) {
-        const preferred = proxySelect.value;
-        const ordered = preferred === 'auto'
-            ? PROXIES
-            : [PROXIES.find(p => p.name === preferred), ...PROXIES.filter(p => p.name !== preferred)].filter(Boolean);
-
         const failures = [];
-        for (const proxy of ordered) {
+        for (const proxy of orderedProxies()) {
             try {
                 statusEl.textContent = `Trying ${proxy.name}...`;
-                return await tryProxy(proxy, targetUrl);
+                const res = await fetch(proxy.build(targetUrl));
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.text();
             } catch (err) {
                 failures.push(`${proxy.name}: ${err.message}`);
             }
         }
         throw new Error(`All proxies failed — ${failures.join(' | ')}`);
+    }
+
+    async function proxiedPostJson(targetUrl, payload) {
+        const failures = [];
+        for (const proxy of orderedProxies(p => p.post)) {
+            try {
+                statusEl.textContent = `Calling InnerTube via ${proxy.name}...`;
+                const res = await fetch(proxy.build(targetUrl), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                return JSON.parse(text);
+            } catch (err) {
+                failures.push(`${proxy.name}: ${err.message}`);
+            }
+        }
+        throw new Error(`InnerTube POST failed — ${failures.join(' | ')}`);
     }
 
     function findPlayerResponse(html) {
@@ -123,17 +142,39 @@
     }
 
     async function loadPlayerData(videoId) {
+        const innertubeUrl = 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
+        const payload = {
+            context: {
+                client: {
+                    clientName: 'ANDROID',
+                    clientVersion: '19.09.37',
+                    androidSdkVersion: 30,
+                    hl: 'en',
+                    gl: 'US',
+                    userAgent: 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+                },
+            },
+            videoId,
+        };
+
+        const failures = [];
+        try {
+            const data = await proxiedPostJson(innertubeUrl, payload);
+            if (data?.captions || data?.videoDetails) return data;
+            failures.push(`InnerTube returned no captions/videoDetails (status: ${data?.playabilityStatus?.status || 'unknown'})`);
+        } catch (err) {
+            failures.push(`InnerTube: ${err.message}`);
+        }
+
         const variants = [
             `https://www.youtube.com/watch?v=${videoId}&hl=en&gl=US&bpctr=9999999999&has_verified=1&persist_hl=1`,
-            `https://m.youtube.com/watch?v=${videoId}&hl=en&gl=US&bpctr=9999999999&has_verified=1`,
             `https://www.youtube.com/watch?v=${videoId}&hl=en`,
         ];
-        const failures = [];
         for (const url of variants) {
             try {
                 const html = await proxiedFetch(url);
                 if (!html.includes('ytInitialPlayerResponse') && !html.includes('"captionTracks"')) {
-                    failures.push(`${new URL(url).hostname}: no player data (likely consent wall, ${html.length} bytes)`);
+                    failures.push(`${new URL(url).hostname}: no player data (${html.length} bytes)`);
                     continue;
                 }
                 return findPlayerResponse(html);
