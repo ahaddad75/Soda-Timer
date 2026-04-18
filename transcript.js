@@ -122,6 +122,28 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
 
+    async function loadPlayerData(videoId) {
+        const variants = [
+            `https://www.youtube.com/watch?v=${videoId}&hl=en&gl=US&bpctr=9999999999&has_verified=1&persist_hl=1`,
+            `https://m.youtube.com/watch?v=${videoId}&hl=en&gl=US&bpctr=9999999999&has_verified=1`,
+            `https://www.youtube.com/watch?v=${videoId}&hl=en`,
+        ];
+        const failures = [];
+        for (const url of variants) {
+            try {
+                const html = await proxiedFetch(url);
+                if (!html.includes('ytInitialPlayerResponse') && !html.includes('"captionTracks"')) {
+                    failures.push(`${new URL(url).hostname}: no player data (likely consent wall, ${html.length} bytes)`);
+                    continue;
+                }
+                return findPlayerResponse(html);
+            } catch (err) {
+                failures.push(`${new URL(url).hostname}: ${err.message}`);
+            }
+        }
+        throw new Error(`Could not load player data — ${failures.join(' | ')}`);
+    }
+
     async function fetchTranscript() {
         lastTxt = ''; lastJson = null;
         txtBtn.disabled = true; jsonBtn.disabled = true;
@@ -135,9 +157,7 @@
         fetchBtn.disabled = true;
         statusEl.textContent = 'Loading video page...';
         try {
-            const watchUrl = `https://www.youtube.com/watch?v=${videoId}&hl=en`;
-            const html = await proxiedFetch(watchUrl);
-            const player = findPlayerResponse(html);
+            const player = await loadPlayerData(videoId);
 
             const tracks = player?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
             if (!tracks || !tracks.length) throw new Error('This video has no captions available.');
