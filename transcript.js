@@ -104,6 +104,25 @@
         return JSON.parse(html.slice(start, i));
     }
 
+    function parseCaptions(text) {
+        const trimmed = text.trimStart();
+        if (trimmed.startsWith('{')) return parseJson3(text);
+        return parseTimedText(text);
+    }
+
+    function parseJson3(text) {
+        const data = JSON.parse(text);
+        const entries = [];
+        for (const ev of data.events || []) {
+            if (!ev.segs) continue;
+            const start = (ev.tStartMs || 0) / 1000;
+            const dur = (ev.dDurationMs || 0) / 1000;
+            const txt = ev.segs.map(s => s.utf8 || '').join('').replace(/\s+/g, ' ').trim();
+            if (txt) entries.push({ start, duration: dur, text: txt });
+        }
+        return entries;
+    }
+
     function parseTimedText(xml) {
         const doc = new DOMParser().parseFromString(xml, 'text/xml');
         const nodes = doc.getElementsByTagName('text');
@@ -143,27 +162,27 @@
 
     async function loadPlayerData(videoId) {
         const innertubeUrl = 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
-        const payload = {
-            context: {
-                client: {
-                    clientName: 'ANDROID',
-                    clientVersion: '19.09.37',
-                    androidSdkVersion: 30,
-                    hl: 'en',
-                    gl: 'US',
-                    userAgent: 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-                },
-            },
-            videoId,
-        };
+        const clients = [
+            { clientName: 'WEB', clientVersion: '2.20240115.05.00' },
+            { clientName: 'MWEB', clientVersion: '2.20240115.05.00' },
+            { clientName: 'IOS', clientVersion: '19.09.3', deviceModel: 'iPhone14,3' },
+            { clientName: 'ANDROID', clientVersion: '19.09.37', androidSdkVersion: 30 },
+        ];
 
         const failures = [];
-        try {
-            const data = await proxiedPostJson(innertubeUrl, payload);
-            if (data?.captions || data?.videoDetails) return data;
-            failures.push(`InnerTube returned no captions/videoDetails (status: ${data?.playabilityStatus?.status || 'unknown'})`);
-        } catch (err) {
-            failures.push(`InnerTube: ${err.message}`);
+        for (const client of clients) {
+            const payload = {
+                context: { client: { ...client, hl: 'en', gl: 'US' } },
+                videoId,
+            };
+            try {
+                const data = await proxiedPostJson(innertubeUrl, payload);
+                const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+                if (tracks && tracks.length) return data;
+                failures.push(`${client.clientName}: no caption tracks (status: ${data?.playabilityStatus?.status || 'unknown'})`);
+            } catch (err) {
+                failures.push(`${client.clientName}: ${err.message}`);
+            }
         }
 
         const variants = [
@@ -209,8 +228,9 @@
             const kind = track.kind === 'asr' ? 'auto-generated' : 'manual';
 
             statusEl.textContent = `Fetching ${lang} (${kind}) captions...`;
-            const xml = await proxiedFetch(track.baseUrl);
-            const entries = parseTimedText(xml);
+            const captionUrl = track.baseUrl.includes('fmt=') ? track.baseUrl : track.baseUrl + '&fmt=json3';
+            const captionResp = await proxiedFetch(captionUrl);
+            const entries = parseCaptions(captionResp);
             if (!entries.length) throw new Error('Caption track was empty.');
 
             lastTxt = entries.map(e => e.text).join('\n');
