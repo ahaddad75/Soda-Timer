@@ -28,12 +28,36 @@
         return m ? m[0] : null;
     }
 
-    async function proxiedFetch(targetUrl) {
-        const proxy = proxySelect.value;
-        const finalUrl = proxy + encodeURIComponent(targetUrl);
-        const res = await fetch(finalUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${targetUrl}`);
+    const PROXIES = [
+        { name: 'corsproxy.io',    build: u => 'https://corsproxy.io/?' + encodeURIComponent(u) },
+        { name: 'allorigins.win',  build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
+        { name: 'codetabs.com',    build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
+        { name: 'cors.lol',        build: u => 'https://api.cors.lol/?url=' + encodeURIComponent(u) },
+        { name: 'thingproxy',      build: u => 'https://thingproxy.freeboard.io/fetch/' + u },
+    ];
+
+    async function tryProxy(proxy, targetUrl) {
+        const res = await fetch(proxy.build(targetUrl));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();
+    }
+
+    async function proxiedFetch(targetUrl) {
+        const preferred = proxySelect.value;
+        const ordered = preferred === 'auto'
+            ? PROXIES
+            : [PROXIES.find(p => p.name === preferred), ...PROXIES.filter(p => p.name !== preferred)].filter(Boolean);
+
+        const failures = [];
+        for (const proxy of ordered) {
+            try {
+                statusEl.textContent = `Trying ${proxy.name}...`;
+                return await tryProxy(proxy, targetUrl);
+            } catch (err) {
+                failures.push(`${proxy.name}: ${err.message}`);
+            }
+        }
+        throw new Error(`All proxies failed — ${failures.join(' | ')}`);
     }
 
     function findPlayerResponse(html) {
