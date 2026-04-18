@@ -70,10 +70,14 @@
 
         <label for="proxy">CORS proxy</label>
         <select id="proxy">
-            <option value="https://corsproxy.io/?">corsproxy.io</option>
-            <option value="https://api.allorigins.win/raw?url=">allorigins.win</option>
+            <option value="auto">Auto (try all)</option>
+            <option value="corsproxy.io">corsproxy.io</option>
+            <option value="allorigins.win">allorigins.win</option>
+            <option value="codetabs.com">codetabs.com</option>
+            <option value="cors.lol">cors.lol</option>
+            <option value="thingproxy">thingproxy</option>
         </select>
-        <div class="hint">Browsers can't call youtube.com directly; the proxy forwards the request.</div>
+        <div class="hint">Browsers can't call youtube.com directly; the proxy forwards the request. "Auto" tries each in order until one works.</div>
 
         <div class="row">
             <button id="fetchBtn">Fetch transcript</button>
