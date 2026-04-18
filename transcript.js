@@ -1,6 +1,26 @@
 (function () {
     const urlInput = document.getElementById('url');
     const proxySelect = document.getElementById('proxy');
+    const customProxyInput = document.getElementById('customProxy');
+
+    const STORAGE_KEY = 'yt-transcript-custom-proxy';
+    customProxyInput.value = localStorage.getItem(STORAGE_KEY) || '';
+    customProxyInput.addEventListener('change', () => {
+        const v = customProxyInput.value.trim();
+        if (v) localStorage.setItem(STORAGE_KEY, v);
+        else localStorage.removeItem(STORAGE_KEY);
+    });
+
+    function customProxy() {
+        const v = customProxyInput.value.trim();
+        if (!v) return null;
+        const base = v.replace(/\/$/, '');
+        return {
+            name: 'custom',
+            build: u => `${base}/?url=${encodeURIComponent(u)}`,
+            post: true,
+        };
+    }
     const fetchBtn = document.getElementById('fetchBtn');
     const txtBtn = document.getElementById('txtBtn');
     const jsonBtn = document.getElementById('jsonBtn');
@@ -39,9 +59,11 @@
     function orderedProxies(filter) {
         const preferred = proxySelect.value;
         const all = filter ? PROXIES.filter(filter) : PROXIES;
-        if (preferred === 'auto') return all;
-        const head = all.find(p => p.name === preferred);
-        return head ? [head, ...all.filter(p => p.name !== preferred)] : all;
+        const list = preferred === 'auto'
+            ? all
+            : (() => { const h = all.find(p => p.name === preferred); return h ? [h, ...all.filter(p => p.name !== preferred)] : all; })();
+        const custom = customProxy();
+        return custom ? [custom, ...list] : list;
     }
 
     async function proxiedFetch(targetUrl) {
