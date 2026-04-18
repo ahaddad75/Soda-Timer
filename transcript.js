@@ -66,7 +66,7 @@
                 statusEl.textContent = `Calling InnerTube via ${proxy.name}...`;
                 const res = await fetch(proxy.build(targetUrl), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
                     body: JSON.stringify(payload),
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
