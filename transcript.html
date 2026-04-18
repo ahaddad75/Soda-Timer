@@ -68,7 +68,11 @@
         <label for="url">YouTube URL or video ID</label>
         <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" autocapitalize="off" spellcheck="false">
 
-        <label for="proxy">CORS proxy</label>
+        <label for="customProxy">Custom proxy URL (recommended)</label>
+        <input type="text" id="customProxy" placeholder="https://your-worker.workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="hint">Paste your Cloudflare Worker URL. See <a href="worker.js" target="_blank">worker.js</a> for 5-min setup. Remembered on this device. Leave blank to use public proxies (often rate-limited).</div>
+
+        <label for="proxy">Fallback CORS proxy</label>
         <select id="proxy">
             <option value="auto">Auto (try all)</option>
             <option value="corsproxy.io">corsproxy.io</option>
