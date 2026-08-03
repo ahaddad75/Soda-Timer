@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Respire — Cohérence cardiaque</title>
+<meta name="description" content="Application de respiration et de cohérence cardiaque en français, avec guidage audio et suivi de vos séances.">
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Respire">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ====================== ÉCRAN PRINCIPAL ====================== -->
+<div id="home" class="screen">
+  <header class="topbar">
+    <h1>Respire</h1>
+    <button class="icon-btn" id="btn-settings" aria-label="Réglages">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+    </button>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="list" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg>
+      <span>Exercices</span>
+    </button>
+    <button class="tab" data-tab="fav" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7-2.8c0 4.7-7 14.8-7 14.8z"/></svg>
+      <span>Favoris</span>
+    </button>
+    <button class="tab" data-tab="stats" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+      <span>Suivi</span>
+    </button>
+  </nav>
+
+  <main class="content">
+    <section id="tab-list" class="tabpanel"></section>
+    <section id="tab-fav" class="tabpanel hidden"></section>
+    <section id="tab-stats" class="tabpanel hidden"></section>
+  </main>
+
+  <button class="fab" id="btn-add" aria-label="Créer un exercice personnalisé">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<!-- ====================== ÉCRAN SÉANCE ====================== -->
+<div id="session" class="screen hidden">
+  <header class="topbar session-top">
+    <button class="icon-btn" id="btn-close-session" aria-label="Quitter la séance">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="session-title">
+      <strong id="s-name">Cohérence cardiaque</strong>
+      <small id="s-sub">Équilibre 5-5</small>
+    </div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="breath-stage">
+    <div class="ring-wrap">
+      <svg class="progress-ring" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="ring-bg" cx="100" cy="100" r="94"/>
+        <circle class="ring-fg" id="ring" cx="100" cy="100" r="94"/>
+      </svg>
+      <div class="bubble" id="bubble"></div>
+      <div class="bubble-inner">
+        <div class="phase-label" id="s-phase">Préparez-vous</div>
+        <div class="phase-count" id="s-count">3</div>
+      </div>
+    </div>
+
+    <div class="session-meta">
+      <div><span id="s-elapsed">0:00</span><small>écoulé</small></div>
+      <div><span id="s-cycles">0</span><small>cycles</small></div>
+      <div><span id="s-remaining">5:00</span><small>restant</small></div>
+    </div>
+
+    <p class="bg-hint" id="s-hint">Vous pouvez éteindre l'écran : le guidage audio continue.</p>
+  </div>
+
+  <div class="session-actions">
+    <button class="btn ghost" id="btn-pause">Pause</button>
+    <button class="btn danger" id="btn-stop">Terminer</button>
+  </div>
+</div>
+
+<!-- ====================== ÉCRAN FIN ====================== -->
+<div id="done" class="screen hidden">
+  <div class="done-card">
+    <div class="done-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7-2.8c0 4.7-7 14.8-7 14.8z"/></svg>
+    </div>
+    <h2>Séance terminée</h2>
+    <p id="done-sum">—</p>
+    <div class="done-stats" id="done-stats"></div>
+    <button class="btn primary" id="btn-done-ok">Retour</button>
+  </div>
+</div>
+
+<!-- ====================== FEUILLE : LANCER UNE SÉANCE ====================== -->
+<div class="sheet-backdrop hidden" id="start-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="start-title">Cohérence cardiaque</h3>
+    <p class="sheet-sub" id="start-rhythm">Inspirez 5 s — Expirez 5 s</p>
+
+    <label class="field-label">Durée de la séance</label>
+    <div class="chips" id="duration-chips"></div>
+
+    <div class="opt-rows">
+      <label class="opt"><span>Voix française (« Inspirez / Expirez »)</span><input type="checkbox" id="opt-voice"></label>
+      <label class="opt"><span>Sons de guidage (fonctionne écran éteint)</span><input type="checkbox" id="opt-tones"></label>
+      <label class="opt"><span>Son continu qui monte et descend</span><input type="checkbox" id="opt-drone"></label>
+      <label class="opt"><span>Vibration à chaque changement</span><input type="checkbox" id="opt-vibe"></label>
+      <label class="opt"><span>Garder l'écran allumé</span><input type="checkbox" id="opt-wake"></label>
+      <label class="opt col"><span>Volume</span><input type="range" id="opt-volume" min="0" max="100" step="1"></label>
+    </div>
+
+    <button class="btn primary big" id="btn-go">Commencer</button>
+    <button class="btn ghost" id="btn-cancel-start">Annuler</button>
+  </div>
+</div>
+
+<!-- ====================== FEUILLE : INFO ====================== -->
+<div class="sheet-backdrop hidden" id="info-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="info-title">—</h3>
+    <p class="sheet-sub" id="info-rhythm">—</p>
+    <p class="info-text" id="info-text">—</p>
+    <button class="btn ghost" id="btn-close-info">Fermer</button>
+  </div>
+</div>
+
+<!-- ====================== FEUILLE : EXERCICE PERSONNALISÉ ====================== -->
+<div class="sheet-backdrop hidden" id="custom-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Exercice personnalisé</h3>
+    <p class="sheet-sub">Mettez 0 pour ignorer une phase.</p>
+    <label class="field-label">Nom</label>
+    <input class="text-input" id="c-name" type="text" placeholder="Ma respiration" maxlength="40">
+    <div class="grid-4">
+      <label><small>Inspiration</small><input type="number" id="c-in" min="1" max="30" value="5"></label>
+      <label><small>Poumons pleins</small><input type="number" id="c-hin" min="0" max="30" value="0"></label>
+      <label><small>Expiration</small><input type="number" id="c-out" min="1" max="30" value="5"></label>
+      <label><small>Poumons vides</small><input type="number" id="c-hout" min="0" max="30" value="0"></label>
+    </div>
+    <button class="btn primary" id="btn-save-custom">Enregistrer</button>
+    <button class="btn ghost" id="btn-cancel-custom">Annuler</button>
+  </div>
+</div>
+
+<!-- ====================== FEUILLE : RÉGLAGES ====================== -->
+<div class="sheet-backdrop hidden" id="settings-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Réglages</h3>
+    <div class="opt-rows">
+      <label class="opt"><span>Voix française</span><input type="checkbox" id="set-voice"></label>
+      <label class="opt"><span>Sons de guidage</span><input type="checkbox" id="set-tones"></label>
+      <label class="opt"><span>Son continu guidé</span><input type="checkbox" id="set-drone"></label>
+      <label class="opt"><span>Vibration</span><input type="checkbox" id="set-vibe"></label>
+      <label class="opt"><span>Garder l'écran allumé</span><input type="checkbox" id="set-wake"></label>
+      <label class="opt col"><span>Volume</span><input type="range" id="set-volume" min="0" max="100" step="1"></label>
+    </div>
+    <p class="info-text">L'application fonctionne hors-ligne. Ajoutez-la à votre écran d'accueil pour l'utiliser comme une vraie appli.</p>
+    <button class="btn ghost danger-text" id="btn-reset-stats">Effacer l'historique des séances</button>
+    <button class="btn ghost" id="btn-close-settings">Fermer</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
