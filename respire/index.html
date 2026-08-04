@@ -116,6 +116,8 @@
     <label class="field-label">Durée de la séance</label>
     <div class="chips" id="duration-chips"></div>
 
+    <p class="preset-hint" id="preset-hint">Vos réglages seront mémorisés pour cet exercice.</p>
+
     <div class="opt-rows">
       <label class="opt"><span>Voix française (« Inspirez / Expirez »)</span><input type="checkbox" id="opt-voice"></label>
       <label class="opt"><span>Sons de guidage (fonctionne écran éteint)</span><input type="checkbox" id="opt-tones"></label>
@@ -136,7 +138,10 @@
     <div class="sheet-handle"></div>
     <h3 id="info-title">—</h3>
     <p class="sheet-sub" id="info-rhythm">—</p>
+    <span class="badge hidden" id="info-badge">—</span>
     <p class="info-text" id="info-text">—</p>
+    <div class="info-block hidden" id="info-why"></div>
+    <div class="refs hidden" id="info-refs"></div>
     <button class="btn ghost" id="btn-close-info">Fermer</button>
   </div>
 </div>
@@ -173,9 +178,55 @@
       <label class="opt"><span>Garder l'écran allumé</span><input type="checkbox" id="set-wake"></label>
       <label class="opt col"><span>Volume</span><input type="range" id="set-volume" min="0" max="100" step="1"></label>
     </div>
-    <p class="info-text">L'application fonctionne hors-ligne. Ajoutez-la à votre écran d'accueil pour l'utiliser comme une vraie appli.</p>
+    <p class="info-text">Ces valeurs servent de point de départ aux exercices que vous n'avez pas encore lancés. Chaque exercice retient ensuite ses propres réglages.</p>
+    <button class="btn" id="btn-science">Que dit la science ?</button>
+    <button class="btn ghost" id="btn-reset-presets">Oublier les réglages mémorisés</button>
     <button class="btn ghost danger-text" id="btn-reset-stats">Effacer l'historique des séances</button>
     <button class="btn ghost" id="btn-close-settings">Fermer</button>
+  </div>
+</div>
+
+<!-- ====================== FEUILLE : SCIENCE ====================== -->
+<div class="sheet-backdrop hidden" id="science-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Que dit la science ?</h3>
+    <p class="sheet-sub">Ce qui est établi, ce qui ne l'est pas.</p>
+
+    <div class="info-block">
+      <h4>Ce qui est solide</h4>
+      <p>Respirer lentement, autour de 5 à 6,5 cycles par minute, produit des effets mesurés et reproduits : forte hausse de la variabilité de la fréquence cardiaque, baroréflexe plus sensible, bascule vers le système parasympathique. À ce rythme, respiration et oscillations de la pression artérielle entrent en résonance. Cette partie n'est pas discutée.</p>
+    </div>
+
+    <div class="info-block">
+      <h4>Ce qui l'est moins</h4>
+      <p>Le passage de l'effet physiologique au mieux-être ressenti est plus fragile. Dans le plus grand essai disponible (400 participants, 4 semaines), la cohérence à 5,5 cycles/min n'a pas fait mieux qu'une respiration factice à 12 cycles/min sur le stress subjectif : les deux groupes se sont améliorés autant. Les méta-analyses trouvent un effet réel mais modeste du breathwork sur le stress, l'anxiété et l'humeur, avec des études souvent de faible qualité.</p>
+    </div>
+
+    <div class="info-block">
+      <h4>Le ratio compte moins que la lenteur</h4>
+      <p>Inspiration plus longue, expiration plus longue, temps égaux : sur neuf études comparant ces ratios, les auteurs arrivent à quatre conclusions différentes. Choisissez le ratio où vous vous sentez bien — c'est la cadence lente qui porte l'essentiel de l'effet.</p>
+    </div>
+
+    <div class="info-block">
+      <h4>Votre rythme optimal est personnel</h4>
+      <p>La fréquence de résonance varie selon les personnes, entre 4,5 et 6,5 cycles par minute, et peut même varier chez une même personne d'un jour à l'autre. Essayez le 5-5, le 6-6 et le 4-6, et gardez celui qui vous apaise le plus.</p>
+    </div>
+
+    <div class="info-block">
+      <h4>Ce qui marche le mieux en comparaison directe</h4>
+      <p>Un essai randomisé de Stanford a comparé trois respirations et une méditation de pleine conscience, 5 minutes par jour pendant un mois. Le soupir physiologique — deux inspirations puis une longue expiration — est arrivé en tête sur l'humeur et la baisse de la fréquence respiratoire, devant la respiration carrée et l'hyperventilation cyclique. Son bénéfice augmentait avec la régularité.</p>
+    </div>
+
+    <div class="info-block">
+      <h4>La régularité prime sur la technique</h4>
+      <p>Dans toutes ces études, ce sont des séances courtes et quotidiennes qui produisent les effets — 5 minutes par jour suffisent. Le meilleur exercice reste celui que vous ferez tous les jours.</p>
+    </div>
+
+    <div class="refs" id="science-refs"></div>
+
+    <p class="info-text">Cette application est un outil de bien-être, pas un dispositif médical. Les rétentions longues et la respiration stimulante sont à éviter en cas de grossesse, de trouble cardiaque ou respiratoire, et à arrêter en cas d'étourdissement.</p>
+    <button class="btn ghost" id="btn-close-science">Fermer</button>
   </div>
 </div>
 

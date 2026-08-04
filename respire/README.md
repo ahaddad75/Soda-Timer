@@ -17,21 +17,87 @@ l'appli en plein écran, hors-ligne, comme une application native.
 
 ## Exercices inclus
 
-| Exercice | Rythme | Usage |
-|---|---|---|
-| Cohérence cardiaque — Équilibre | 5-5 | référence, 6 respirations/min |
-| Cohérence cardiaque — Relaxation | 4-6 | détente |
-| Cohérence cardiaque — Dynamique | 6-4 | calme et alerte |
-| Respiration carrée | 4-4-4-4 | recentrage sous pression |
-| Respiration 4-7-8 | 4-7-8 | endormissement |
-| Respiration 4-4 | 4-4 | pause express |
-| Respiration 4-4-6-2 | 4-4-6-2 | réduction du stress |
-| Respiration apaisante | 4-8 | anxiété |
-| Respiration stimulante | 6-2 | réveil, énergie |
-| Respiration méditative | 6-6 | méditation longue |
+Chaque exercice affiche son **niveau de preuve** et ses sources dans sa fiche (bouton ⓘ).
+
+| Exercice | Rythme | Cycles/min | Preuves | Usage |
+|---|---|---|---|---|
+| Cohérence cardiaque — Équilibre | 5-5 | 6 | solides | référence de la cohérence cardiaque |
+| Soupir physiologique | 3-1-7 | 5,5 | modérées | apaisement rapide, meilleur résultat en comparaison directe |
+| Cohérence cardiaque — Relaxation | 4-6 | 6 | modérées | détente, fin de journée |
+| Cohérence cardiaque — Dynamique | 6-4 | 6 | modérées | calme et alerte |
+| Respiration carrée | 4-4-4-4 | 3,75 | limitées | recentrage sous pression |
+| Respiration apaisante | 4-8 | 5 | modérées | anxiété, ruminations |
+| Respiration méditative | 6-6 | 5 | solides | séance longue |
+| Respiration 4-7-8 | 4-7-8 | 3,2 | limitées | endormissement |
+| Respiration 4-4 | 4-4 | 7,5 | modérées | pause express, débutants |
+| Respiration 4-4-6-2 | 4-4-6-2 | 3,75 | limitées | variante de confort |
+| Respiration stimulante | 6-2 | 3,75 | limitées | réveil — à éviter le soir |
 
 Des exercices personnalisés peuvent être créés avec le bouton **+**
 (inspiration / poumons pleins / expiration / poumons vides).
+
+## Réglages mémorisés par exercice
+
+Chaque exercice retient sa durée et ses options de guidage. Régler la cohérence
+cardiaque sur 15 minutes sans son continu n'affecte pas le 4-7-8, qui garde ses
+propres réglages. La fiche indique « Réglages mémorisés pour cet exercice » une
+fois le préréglage enregistré ; Réglages → *Oublier les réglages mémorisés* les
+remet tous à zéro. Le volume reste global, car il dépend de l'appareil.
+
+Les interrupteurs du panneau **Réglages** définissent les valeurs de départ des
+exercices qui n'ont pas encore été lancés.
+
+## Fondement scientifique
+
+L'écran Réglages → **Que dit la science ?** résume l'état des preuves, et chaque
+exercice porte le sien. En résumé :
+
+**Ce qui est solide.** Respirer autour de 5 à 6,5 cycles par minute produit des
+effets mesurés et reproduits : forte hausse de la variabilité de la fréquence
+cardiaque, baroréflexe plus sensible, bascule parasympathique. À ce rythme la
+respiration entre en résonance avec les oscillations de la pression artérielle
+(ondes de Mayer, période ~10 s).
+
+**Ce qui l'est moins.** Le passage de cet effet physiologique au mieux-être
+ressenti est plus fragile. Dans le plus grand essai disponible — 400
+participants, 4 semaines, contre un placebo actif à 12 cycles/min — la cohérence
+à 5,5 cycles/min **n'a pas fait mieux** sur le stress subjectif : les deux
+groupes se sont améliorés autant. Les méta-analyses trouvent un effet réel mais
+modeste du breathwork sur le stress, l'anxiété et l'humeur (g ≈ −0,32 à −0,35),
+sur une littérature de qualité inégale.
+
+**Le ratio compte moins que la lenteur.** Sur neuf études comparant les ratios
+inspiration/expiration, les auteurs aboutissent à quatre conclusions
+différentes. Le choix du ratio relève donc du confort.
+
+**La fréquence optimale est personnelle** (4,5–6,5 cycles/min selon les
+individus, et variable dans le temps chez une même personne) : d'où l'intérêt de
+comparer 5-5, 6-6 et 4-6.
+
+**En comparaison directe**, le soupir physiologique (deux inspirations puis une
+longue expiration) a devancé la respiration carrée, l'hyperventilation cyclique
+et la méditation de pleine conscience sur l'humeur et la fréquence
+respiratoire, à raison de 5 minutes par jour pendant un mois — avec un bénéfice
+croissant avec la régularité. C'est pourquoi il figure en deuxième position dans
+la liste.
+
+**Prudence sur la pression artérielle** : l'effet de la respiration lente guidée
+disparaît dans les méta-analyses lorsqu'on écarte les essais financés par les
+fabricants d'appareils. L'application ne revendique donc aucun effet
+antihypertenseur.
+
+### Sources
+
+- [Laborde et al., 2022 — respiration guidée à 6 cycles/min, *Psychophysiology*](https://onlinelibrary.wiley.com/doi/10.1111/psyp.13952)
+- [Fincham et al., 2023 — cohérence 5,5/min contre placebo actif, *Scientific Reports*](https://www.nature.com/articles/s41598-023-49279-8)
+- [Fincham et al., 2023 — méta-analyse des essais sur le breathwork, *Scientific Reports*](https://www.nature.com/articles/s41598-022-27247-y)
+- [Balban et al., 2023 — trois respirations comparées à la méditation (Stanford)](https://med.stanford.edu/news/insights/2023/02/cyclic-sighing-can-help-breathe-away-anxiety.html)
+- [Van Diest et al., 2014 — le ratio inspiration/expiration module l'effet](https://link.springer.com/article/10.1007/s10484-014-9253-x)
+- [Steffen et al., 2024 — une expiration plus longue augmente-t-elle la VFC ?](https://link.springer.com/article/10.1007/s10484-024-09637-2)
+- [La fréquence de résonance est individuelle et instable](https://www.nature.com/articles/s41598-021-87867-8)
+- [Gonçalves et al., 2022 — respiration lente et pression artérielle](https://onlinelibrary.wiley.com/doi/full/10.1002/hsr2.636)
+- [Effets de la respiration 4-7-8 sur la VFC et la pression artérielle](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9277512/)
+- [Origine cérébrale du réflexe de soupir (UCLA / Stanford, *Science* 2017)](https://newsroom.ucla.edu/releases/ucla-and-stanford-researchers-pinpoint-origin-of-sighing-reflex-in-the-brain)
 
 ## Guidage audio
 
