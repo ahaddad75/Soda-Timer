@@ -1,5 +1,5 @@
 /* Service worker : l'application reste utilisable hors-ligne. */
-const CACHE = 'respire-v2';
+const CACHE = 'respire-v3';
 const ASSETS = [
   './',
   './index.html',

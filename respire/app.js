@@ -464,6 +464,7 @@ const Session = {
     this.setupMediaSession();
     this.requestWakeLock();
     this.scheduleEnd();
+    this.armCue();
     this.loop();
     if (active.voice) Voice.say('Préparez-vous');
   },
@@ -494,6 +495,36 @@ const Session = {
     return this.timeline.length - 1;
   },
 
+  /* Repères vocaux et vibration.
+     Ils ne peuvent pas être pré-programmés comme les sons (la synthèse vocale
+     n'a pas d'API de planification), mais ils ne doivent pas dépendre de
+     requestAnimationFrame, qui s'arrête dès que l'onglet passe en arrière-plan.
+     On arme donc une minuterie calée sur le prochain changement de phase, puis
+     on la réarme à chaque déclenchement en repartant de l'horloge audio : la
+     dérive éventuelle d'un cran est corrigée au cran suivant. */
+  armCue() {
+    clearTimeout(this.cueTimer);
+    if (!this.running || this.paused) return;
+    const e = this.elapsed();
+    const i = this.timeline.findIndex(ph => ph.start > e + 0.03);
+    if (i < 0) return;
+    this.cueTimer = setTimeout(() => {
+      this.fireCue(i);
+      this.armCue();
+    }, Math.max(0, (this.timeline[i].start - e) * 1000));
+  },
+
+  fireCue(i) {
+    if (i === this.lastPhase || !this.running || this.paused) return;
+    this.lastPhase = i;
+    const ph = this.timeline[i];
+    // repère trop tardif (onglet réveillé après throttling) : on le saute
+    if (this.elapsed() - ph.start > 1.2) return;
+    Voice.say(PHASE_SPEECH[ph.type]);
+    if (active.vibrate && navigator.vibrate) navigator.vibrate(ph.type === 'in' ? 60 : [40, 60, 40]);
+    window.dispatchEvent(new CustomEvent('respire:phase', { detail: { type: ph.type, cycle: ph.cycle } }));
+  },
+
   render() {
     const e = this.elapsed();
     if (e >= this.total) { this.finish(); return; }
@@ -515,15 +546,8 @@ const Session = {
       const r = phaseRange(ph.type, this.doubleIn);
       scale = 0.42 + 0.58 * (r[0] + (r[1] - r[0]) * ease);
 
-      if (i !== this.lastPhase) {
-        this.lastPhase = i;
-        $('#s-cycles').textContent = String(ph.cycle - (ph.type === 'in' ? 1 : 0));
-        // repères tardifs ignorés (onglet réveillé après throttling)
-        if (e - ph.start < 1.2) {
-          Voice.say(PHASE_SPEECH[ph.type]);
-          if (active.vibrate && navigator.vibrate) navigator.vibrate(ph.type === 'in' ? 60 : [40, 60, 40]);
-        }
-      }
+      $('#s-cycles').textContent = String(ph.cycle - (ph.type === 'in' ? 1 : 0));
+      this.fireCue(i);   // filet de sécurité si la minuterie a été retardée
     }
 
     bubble.style.transform = 'scale(' + scale.toFixed(3) + ')';
@@ -543,6 +567,7 @@ const Session = {
       this.paused = false;
       $('#btn-pause').textContent = 'Pause';
       this.scheduleEnd();
+      this.armCue();
       this.loop();
       this.requestWakeLock();
     } else {
@@ -551,6 +576,7 @@ const Session = {
       $('#btn-pause').textContent = 'Reprendre';
       $('#s-phase').textContent = 'En pause';
       clearTimeout(this.endTimer);
+      clearTimeout(this.cueTimer);
       cancelAnimationFrame(this.raf);
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
@@ -565,6 +591,7 @@ const Session = {
     this.running = false;
     cancelAnimationFrame(this.raf);
     clearTimeout(this.endTimer);
+    clearTimeout(this.cueTimer);
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     this.releaseWakeLock();
 
@@ -634,6 +661,7 @@ document.addEventListener('visibilitychange', () => {
     Session.requestWakeLock();
     Session.loop();
     Session.scheduleEnd();
+    Session.armCue();
   }
 });
 
